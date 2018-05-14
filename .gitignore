@@ -1,6 +1,6 @@
-[Ll]ibrary/
-[Tt]emp/
-[Oo]bj/
+SRC/[Ll]ibrary/
+SRC/[Tt]emp/
+SRC/[Oo]bj/
 [Bb]uild/
 [Bb]uilds/
 Assets/AssetStoreTools*
