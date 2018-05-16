@@ -70,22 +70,6 @@ public class AIBehaviour
 	public List<AIGambitLine> Gambits;
 }
 
-public interface IMapData
-{
-	ETile[,] GetMap();
-	void UpdateMap(ref ETile[,] visionMap, params Vector2Int[] tilesToUpdate);
-	bool Collect(Vector2Int position);
-}
-
-
-public enum ETile
-{
-	UNKNOWN,
-	DUST,
-	GOLD,
-	ROCK,
-}
-
 public enum EActionCondition
 {
 	COLLECT,
@@ -109,27 +93,6 @@ public enum ETargetCondition
 	GROUND,
 }
 
-public enum EResource
-{
-	GOLD,
-	IRON,
-	WATER,
-	TREASURE,
-}
-
-public enum EObstacle
-{
-	ROCK,
-	WALL,
-	FIRE,
-}
-
-public enum EGround
-{
-	SAND,
-	GRASS,
-	MISC,
-}
 
 public struct TileMap
 {
