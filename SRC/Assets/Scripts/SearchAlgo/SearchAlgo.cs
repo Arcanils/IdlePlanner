@@ -4,13 +4,6 @@ using UnityEngine;
 
 public class SearchAlgo
 {
-	public struct Node
-	{
-		public Point point;
-		public int Cost;
-		public int Heuristic;
-	}
-
 	public struct Point
 	{
 		public int x, y;
@@ -19,63 +12,194 @@ public class SearchAlgo
 			this.x = x;
 			this.y = y;
 		}
+
+		public void Set(int x, int y)
+		{
+			this.x = x;
+			this.y = y;
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (!(obj is Point))
+			{
+				return false;
+			}
+
+			var point = (Point)obj;
+			return x == point.x &&
+				   y == point.y;
+		}
+
+		public override int GetHashCode()
+		{
+			var hashCode = 1502939027;
+			hashCode = hashCode * -1521134295 + base.GetHashCode();
+			hashCode = hashCode * -1521134295 + x.GetHashCode();
+			hashCode = hashCode * -1521134295 + y.GetHashCode();
+			return hashCode;
+		}
+
+		public static bool operator ==(Point lhs, Point rhs)
+		{
+			return lhs.x == rhs.x && lhs.y == rhs.y;
+		}
+		public static bool operator !=(Point lhs, Point rhs)
+		{
+			return lhs.x != rhs.x || lhs.y != rhs.y;
+		}
 	}
 
-	public 
-
-	public Queue<Vector2Int> GetPathToTarget<T>(Dictionary<Vector2Int, T> map, Vector2Int start, Vector2Int goal, int maxLength)
+	public Queue<Point> GetPathToTarget<T>(Dictionary<Point, T> map, Point start, Point goal, int maxLength)
 	{
-		var startNode = new Node();
-		var goalNode = new Node();
-		var openSet = new List<Node>(); // Sorted by heurestic
 		// openSet.Add(start);
-		var closedSet = new List<Node>();
-		var cameFrom = new Dictionary<Node, Node>();
-		var gScore = new Dictionary<Node, int>();
-		gScore[startNode] = 0;
+		var closedSet = new HashSet<Point>();
+		var openSet = new List<Point>
+		{
+			start
+		}; // Sorted by heurestic
+		var cameFrom = new Dictionary<Point, Point>();
+		var gScore = new Dictionary<Point, int>
+		{
+			{ start, 0 }
+		};
 
-		var fScore = new Dictionary<Node, int>();
-		fScore[startNode] = HeuristicCostEstimate(start, goal);
+		var fScore = new Dictionary<Point, int>
+		{
+			{ start, HeuristicCostEstimate(start, goal)	}
+		};
 
-		var neighbors = new List<Node>(4);
-		var position = new Vector2Int();
+
+		var neighbors = new List<Point>(4);
 	
 		while (openSet.Count != 0)
 		{
-			var current = openSet[0];
+			var indexCurrent = GetIndexMinValue(fScore, openSet);
+			var current = openSet[indexCurrent];
 
-			if (current == goalNode)
-				return null; // Return le path construit
+			if (current == goal)
+				return RecontructPath(cameFrom, current);
 
 
-			openSet.RemoveAt(0);
+			openSet.RemoveAt(indexCurrent);
 			closedSet.Add(current);
 
-			neighbors = GetSidesNodes();
-
+			neighbors.Clear();
+			GetSidesNodes(map, current, ref neighbors);
 
 			for (int i = neighbors.Count - 1; i >= 0; --i)
 			{
-				var nodeTest = neighbors[i];
-				if (!cameFrom.ContainsKey(nodeTest))
-				{
-					openSet.Add(nodeTest);
-				}
-
-				var tentativeGScore = gScore[current] + GetDistance(current, nodeTest);
-				if (tentativeGScore >= gScore[current])
-				{
+				var sideNode = neighbors[i];
+				if (closedSet.Contains(sideNode))
 					continue;
+
+				if (!openSet.Contains(sideNode))
+				{
+					openSet.Add(sideNode);
+					//var costNode = HeuristicCostEstimate(nodeTest, goal);
+					//AddElementInSortedList(ref openSet, nodeTest, fScore, costNode);
 				}
 
-				cameFrom[nodeTest] = current;
-				gScore[nodeTest] = tentativeGScore;
-				fScore[nodeTest] = gScore[nodeTest] + HeuristicCostEstimate(nodeTest, goalNode);
+				int tentativeGScore;
+				if (gScore.TryGetValue(sideNode, out tentativeGScore))
+				{
+					var dist = GetDistance(current, sideNode); // Juste distance
+
+					if (dist == -1 || tentativeGScore + dist >= gScore[current])
+					{
+						continue;
+					}
+				}
+				else
+					continue;
+
+				cameFrom[sideNode] = current;
+				gScore[sideNode] = tentativeGScore;
+				fScore[sideNode] = gScore[sideNode] + HeuristicCostEstimate(sideNode, goal);
 			}
 		}
 
 		return null;
 	}
+
+	private static int GetIndexMinValue(Dictionary<Point, int> dicoValue, List<Point> listPoint)
+	{
+		var indexCurrent = listPoint.Count - 1;
+		var min = int.MaxValue;
+		dicoValue.TryGetValue(listPoint[indexCurrent], out min);
+
+		for (int i = indexCurrent - 1, valFScore = 0; i >= 0; --i)
+		{
+			if (dicoValue.TryGetValue(listPoint[i], out valFScore))
+			{
+				if (min > valFScore)
+				{
+					min = valFScore;
+					indexCurrent = i;
+				}
+			}
+		}
+
+		return indexCurrent;
+	}
+
+	private static int GetDistance(Point start, Point goal)
+	{
+		return 1;
+	}
+
+	private static void AddElementInSortedList(ref List<Point> listPoints, Point newPoint, Dictionary<Point,int> pointsValue, int newPointValue)
+	{
+		for (int j = 0, jLength = listPoints.Count; j < jLength; ++j)
+		{
+			int cost;
+			var pointJ = listPoints[j];
+			if (pointsValue.TryGetValue(pointJ, out cost) && cost >= newPointValue)
+			{
+				listPoints.Insert(j, newPoint);
+				return;
+			}
+		}
+
+		listPoints.Add(newPoint);
+	}
+
+	private static void GetSidesNodes<T>(Dictionary<Point, T> map, Point position, ref List<Point> listNodeToAppend)
+	{
+		var sideNode = position;
+
+		sideNode.Set(position.x + 1, position.y);
+		if (map.ContainsKey(position))
+			listNodeToAppend.Add(position);
+		sideNode.Set(position.x - 1, position.y);
+		if (map.ContainsKey(position))
+			listNodeToAppend.Add(position);
+		sideNode.Set(position.x, position.y + 1);
+		if (map.ContainsKey(position))
+			listNodeToAppend.Add(position);
+		sideNode.Set(position.x, position.y - 1);
+		if (map.ContainsKey(position))
+			listNodeToAppend.Add(position);
+	}
+
+	private static int HeuristicCostEstimate(Point start, Point goal)
+	{
+		return Mathf.Abs(start.x - goal.x) + Mathf.Abs(start.y - goal.y);
+	}
+
+	public Queue<Point> RecontructPath(Dictionary<Point, Point> cameFrom, Point current)
+	{
+		var path = new Queue<Point>();
+		path.Enqueue(current);
+		while (cameFrom.ContainsKey(current))
+		{
+			current = cameFrom[current];
+			path.Enqueue(current);
+		}
+
+		return path;
+	}
+
 	/*
 	function reconstruct_path(cameFrom, current)
 
