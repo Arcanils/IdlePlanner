@@ -92,10 +92,3 @@ public enum ETargetCondition
 	OBSTACLE,
 	GROUND,
 }
-
-
-public struct TileMap
-{
-	public ETile Type;
-	public int Amount;
-}

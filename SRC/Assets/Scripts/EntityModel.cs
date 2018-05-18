@@ -1,14 +1,15 @@
-﻿using System.Collections;
+﻿using Map;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public interface IEntityModel
 {
 	void Collect();
-	void MoveTo(Vector2Int newPosition);
+	void MoveTo(Point newPosition);
 	void Scan();
 	void Back();
-	void Spawn(Vector2Int startPosition);
+	void Spawn(Point startPosition);
 }
 
 public class EntityModel : IEntityModel
@@ -28,17 +29,17 @@ public class EntityModel : IEntityModel
 	public int CapacityStorage = 5;
 	public int CurrentAmountFuel = 50;
 
-	public Vector2Int Position { get; private set; }
-	public Vector2Int PrevPosition { get; private set; }
+	public Point Position { get; private set; }
+	public Point PrevPosition { get; private set; }
 	public int AmountCollected { get; private set; }
 	public EStateModel State { get; private set; }
 	public int DurationState { get; private set; }
 
-	private ETile[,] _visionMap;
+	private HashSet<Point> _visionMap;
 	private readonly EntityView _pawn;
-	private readonly IMapData _iMapData;
+	private readonly IActionOnMap _iMapData;
 
-	public EntityModel(IMapData iMapData, Vector2Int startPosition)
+	public EntityModel(IActionOnMap iMapData, Point startPosition)
 	{
 		_iMapData = iMapData;
 		_visionMap = iMapData.GetMap();
@@ -60,7 +61,7 @@ public class EntityModel : IEntityModel
 		SwitchState(EStateModel.COLLECT);
 	}
 
-	void IEntityModel.MoveTo(Vector2Int newPosition)
+	void IEntityModel.MoveTo(Point newPosition)
 	{
 		if (CurrentAmountFuel <= 0)
 			return;
@@ -83,7 +84,7 @@ public class EntityModel : IEntityModel
 		SwitchState(EStateModel.BACK);
 	}
 
-	public void Spawn(Vector2Int startPosition)
+	public void Spawn(Point startPosition)
 	{
 		Position = startPosition;
 		PrevPosition = startPosition;
@@ -102,15 +103,15 @@ public class EntityModel : IEntityModel
 		State = newState;
 	}
 
-	private static Vector2Int[] GetPositionToUpdate(int rangeScan, Vector2Int position)
+	private static Point[] GetPositionToUpdate(int rangeScan, Point position)
 	{
-		var listPosToUpdate = new List<Vector2Int>();
+		var listPosToUpdate = new List<Point>();
 		for (int i = -rangeScan; i < rangeScan; i++)
 		{
 			var jLength = (rangeScan - Mathf.Abs(i)) + 1;
 			for (int j = jLength / 2; j < rangeScan; j++)
 			{
-				listPosToUpdate.Add(new Vector2Int(i + position.x, j + position.y));
+				listPosToUpdate.Add(new Point(i + position.x, j + position.y));
 			}
 		}
 		return listPosToUpdate.ToArray();
