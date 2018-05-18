@@ -59,7 +59,7 @@ namespace Map
 						var yCoord = yOrigin + (y * tile.ScaleNoise) / data.SizeMapY;
 
 						var noiseValue = Mathf.PerlinNoise(xCoord, yCoord);
-
+						Debug.LogWarning(x + " " + y + " " + noiseValue);
 						if (noiseValue > tile.SpawnValue)
 						{
 							map[position] = new TileMapData(fwTile, Mathf.RoundToInt(5 * ((noiseValue - tile.SpawnValue) / lengthLuck)));

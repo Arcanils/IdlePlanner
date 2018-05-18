@@ -80,6 +80,7 @@ namespace Map
 	}
 
 
+	[System.Serializable]
 	public struct TypeTile : System.IEquatable<TypeTile>
 	{
 		public ETile Tile;
@@ -91,10 +92,12 @@ namespace Map
 		}
 	}
 
+	[System.Serializable]
 	public class TileFlyweight
 	{
 		public TypeTile Type;
 		public Sprite Text;
+		public Color Color;
 	}
 
 	public class TileMapData

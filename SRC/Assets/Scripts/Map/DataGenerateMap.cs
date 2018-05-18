@@ -8,6 +8,7 @@ namespace Map
 	[CreateAssetMenu(fileName = "MapData", menuName = "Map/MapData")]
 	public class DataGenerateMap : ScriptableObject
 	{
+		[System.Serializable]
 		public struct DataSpawnTile
 		{
 			public TypeTile Type;
