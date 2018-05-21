@@ -11,6 +11,11 @@ public class EntityView : MonoBehaviour {
 		_data = data;
 	}
 
+	public void Tick()
+	{
+
+	}
+
 	public void Move()
 	{
 

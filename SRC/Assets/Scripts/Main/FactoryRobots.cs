@@ -3,8 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FactoryRobots : MonoBehaviour {
+public interface IFactoryRobot
+{
+	void CreateModelControllerRobot(Point startPoint, out EntityModel model, out EntityController controller);
+	void CreateViewRobot(EntityModel modelToBind, out EntityView view);
+}
 
+public class FactoryRobots : IFactoryRobot
+{
 	public GameObject PrefabPawn;
 
 	private IActionOnMap _iMapData;
@@ -14,26 +20,25 @@ public class FactoryRobots : MonoBehaviour {
 		_iMapData = iMapData;
 	}
 
-	public void CreateEntity(Point positionCell)
-	{
-		var logic = CreateEntityLogic(positionCell);
-		var controller = CreateController(logic);
-		var pawn = CreatePawn();
-	}
-
-	public EntityView CreatePawn()
-	{
-		return GameObject.Instantiate(PrefabPawn).GetComponent<EntityView>();
-	}
-
-	public EntityModel CreateEntityLogic(Point positionCell)
+	private EntityModel CreateEntityLogic(Point positionCell)
 	{
 		return new EntityModel(_iMapData, positionCell);
 	}
 
-	public EntityController CreateController(EntityModel model)
+	private EntityController CreateController(EntityModel model)
 	{
 		return new EntityController(model);
 	}
 
+	void IFactoryRobot.CreateModelControllerRobot(Point startPoint, out EntityModel model, out EntityController controller)
+	{
+		model = CreateEntityLogic(startPoint);
+		controller = CreateController(model);
+	}
+
+	void IFactoryRobot.CreateViewRobot(EntityModel modelToBind, out EntityView view)
+	{
+		view = Object.Instantiate(PrefabPawn).GetComponent<EntityView>();
+		view.Init(modelToBind);
+	}
 }
