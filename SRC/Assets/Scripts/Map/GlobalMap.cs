@@ -9,28 +9,50 @@ namespace Map
 
 	public interface IActionOnMap
 	{
-		HashSet<Point> GetMap();
-		void UpdateMap(ref HashSet<Point> visionMap, params Point[] tilesToUpdate);
+		Dictionary<Point, TileMapData> GetMap();
+		void UpdateMap(ref Dictionary<Point, TileMapData> visionMap, params Point[] tilesToUpdate);
 		bool Collect(Point position);
 	}
 
 	public class GlobalMap : IActionOnMap
 	{
 		private Dictionary<Point, TileMapData> _map;
+		private Dictionary<Point, TileMapData> _vision;
+		public GlobalMap(Dictionary<Point, TileMapData> map)
+		{
+			_map = map;
+			_vision = new Dictionary<Point, TileMapData>();
+		}
 
 		bool IActionOnMap.Collect(Point position)
 		{
-			throw new System.NotImplementedException();
+			if (!_map.ContainsKey(position))
+				return false;
+
+			var item = _map[position];
+
+			if (item.Data.Type.Tile != ETile.RESOURCE || item.AmountResources <= 0)
+				return false;
+
+			--item.AmountResources;
+			return true;
 		}
 
-		HashSet<Point> IActionOnMap.GetMap()
+		Dictionary<Point, TileMapData> IActionOnMap.GetMap()
 		{
-			throw new System.NotImplementedException();
+			return _vision;
 		}
 
-		void IActionOnMap.UpdateMap(ref HashSet<Point> visionMap, params Point[] tilesToUpdate)
+		void IActionOnMap.UpdateMap(ref Dictionary<Point, TileMapData> visionMap, params Point[] tilesToUpdate)
 		{
-			throw new System.NotImplementedException();
+			for (int i = tilesToUpdate.Length - 1; i >= 0; --i)
+			{
+				var position = tilesToUpdate[i];
+				if (!_map.ContainsKey(position))
+					continue;
+
+				visionMap[position] = _map[position];
+			}
 		}
 	}
 }

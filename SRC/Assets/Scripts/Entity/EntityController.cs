@@ -6,11 +6,12 @@ using UnityEngine;
 public class EntityController
 {
 	private IEntityModel _actionModel;
-	private AIBehaviour _ai;
+	private readonly AIBehaviour _ai;
 
 	public EntityController(IEntityModel actionModel)
 	{
 		_actionModel = actionModel;
+		_ai = AIBehaviour.GenerateStaticAI();
 	}
 
 	public void Tick()
@@ -30,7 +31,21 @@ public class EntityController
 
 	private static bool EvaluateCondtion(IEntityModel model, ECondition condition, ETargetCondition target)
 	{
-		return true;
+		switch (condition)
+		{
+			case ECondition.ON_TARGET:
+				return true;
+			case ECondition.NEXT_TO:
+				return true;
+			case ECondition.HAS_VISION_ON_TARGET:
+				return true;
+			case ECondition.NO_PATH:
+				return true;
+			case ECondition.TRUE:
+				return true;
+		}
+
+		return false;
 	}
 
 	private static void ExecuteAction(IEntityModel model, EActionCondition action)
@@ -63,11 +78,35 @@ public struct AIGambitLine
 	public ECondition Condition;
 	public ETargetCondition Target;
 	public EActionCondition Action;
+
+	public AIGambitLine(ECondition condtion, ETargetCondition target, EActionCondition action)
+	{
+		Condition = condtion;
+		Target = target;
+		Action = action;
+	}
 }
 
 public class AIBehaviour
 {
 	public List<AIGambitLine> Gambits;
+
+	public AIBehaviour(List<AIGambitLine> gambits)
+	{
+		Gambits = gambits;
+	}
+
+	public static AIBehaviour GenerateStaticAI()
+	{
+		var gambits = new List<AIGambitLine>
+		{
+			new AIGambitLine(ECondition.HAS_VISION_ON_TARGET, ETargetCondition.RESOURCE, EActionCondition.COLLECT),
+			new AIGambitLine(ECondition.NO_PATH, ETargetCondition.NONE, EActionCondition.FIND_NEW_PATH),
+			new AIGambitLine(ECondition.TRUE, ETargetCondition.NONE, EActionCondition.MOVE_FORWARD),
+		};
+
+		return new AIBehaviour(gambits);
+	}
 }
 
 public enum EActionCondition
@@ -84,6 +123,8 @@ public enum ECondition
 	ON_TARGET,
 	NEXT_TO,
 	HAS_VISION_ON_TARGET,
+	NO_PATH,
+	TRUE,
 }
 
 public enum ETargetCondition
@@ -91,4 +132,5 @@ public enum ETargetCondition
 	RESOURCE,
 	OBSTACLE,
 	GROUND,
+	NONE,
 }

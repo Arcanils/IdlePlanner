@@ -11,6 +11,7 @@ public class Main : MonoBehaviour {
 
 	[SerializeField]
 	private FactoryRobots _factory;
+	private GlobalMap _map;
 	private IEntityManagerAction _entityManagerAction;
 	private IEntityTick _entityManagerTick;
 
@@ -22,9 +23,10 @@ public class Main : MonoBehaviour {
 		var entityManager = new EntityManager(_factory, startPoint);
 		_entityManagerAction = entityManager;
 		_entityManagerTick = entityManager;
-		var map = MapGenerator.GenerateStatic();
-
-		foreach (var item in map)
+		var mapData = MapGenerator.GenerateStatic();
+		_map = new GlobalMap(mapData);
+		_factory.Init(_map);
+		foreach (var item in mapData)
 		{
 			var position = new Vector3(item.Key.x, item.Key.y);
 			var instance = GameObject.Instantiate(PrefabTile, position, Quaternion.identity);

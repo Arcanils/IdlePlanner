@@ -9,6 +9,7 @@ public interface IFactoryRobot
 	void CreateViewRobot(EntityModel modelToBind, out EntityView view);
 }
 
+[System.Serializable]
 public class FactoryRobots : IFactoryRobot
 {
 	public GameObject PrefabPawn;

@@ -35,7 +35,7 @@ public class EntityModel : IEntityModel
 	public EStateModel State { get; private set; }
 	public int DurationState { get; private set; }
 
-	private HashSet<Point> _visionMap;
+	private Dictionary<Point, TileMapData> _visionMap;
 	private readonly EntityView _pawn;
 	private readonly IActionOnMap _iMapData;
 

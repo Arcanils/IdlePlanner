@@ -142,6 +142,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PrefabTile: {fileID: 1293328588775672, guid: 440f9df782fad094bae08dd7eaa85a18, type: 2}
   MapGenerator: {fileID: 11400000, guid: 6fb03ba222f62db4d976b200656cb9d7, type: 2}
+  _factory:
+    PrefabPawn: {fileID: 1574251325096324, guid: 44f392c85e36b124e8b4d8a0f1788179,
+      type: 2}
 --- !u!4 &340074103
 Transform:
   m_ObjectHideFlags: 0
