@@ -4,9 +4,86 @@ using UnityEngine;
 
 namespace Map
 {
-	public class SearchAlgo
+	public static class SearchAlgo
 	{
-		public Queue<Point> GetPathToTarget<T>(Dictionary<Point, T> map, Point start, Point goal, int maxLength)
+		public static Queue<Point> DijkstraPath(Dictionary<Point, TileMapData> map, Point start, TypeTile[] typesWanted, int maxLength)
+		{
+			// openSet.Add(start);
+			var closedSet = new HashSet<Point>();
+			var openSet = new List<Point>
+			{
+				start
+			}; // Sorted by heurestic
+			var cameFrom = new Dictionary<Point, Point>();
+			var gScore = new Dictionary<Point, int>
+			{
+				{ start, 0 }
+			};
+
+
+			var neighbors = new List<Point>(4);
+
+			while (openSet.Count != 0)
+			{
+				var indexCurrent = GetIndexMinValue(gScore, openSet);
+				var current = openSet[indexCurrent];
+
+				if (gScore[current] > maxLength)
+					return null;
+
+				if (IsTargetNode(map[current], typesWanted))
+					return RecontructPath(cameFrom, current);
+
+
+				openSet.RemoveAt(indexCurrent);
+				closedSet.Add(current);
+
+				neighbors.Clear();
+				GetSidesNodes(map, current, ref neighbors);
+
+				for (int i = neighbors.Count - 1; i >= 0; --i)
+				{
+					var sideNode = neighbors[i];
+					if (closedSet.Contains(sideNode))
+						continue;
+
+					if (!openSet.Contains(sideNode))
+					{
+						openSet.Add(sideNode);
+						gScore[sideNode] = gScore[current] + GetDistance(map[current], map[sideNode]);
+						cameFrom[sideNode] = current;
+						continue;
+					}
+
+					var sideNodeCost = gScore[sideNode];
+					var dist = GetDistance(map[current], map[sideNode]);
+
+					if (sideNodeCost <= gScore[current] + dist)
+						continue;
+
+					cameFrom[sideNode] = current;
+					gScore[sideNode] = sideNodeCost;
+
+
+				}
+			}
+
+			return null;
+		}
+
+
+		private static bool IsTargetNode(TileMapData node, TypeTile[] types)
+		{
+			for (int i = types.Length - 1; i >= 0; --i)
+			{
+				if (node.Data.Type.Equals(types[i]))
+					return true;
+			}
+
+			return false;
+		}
+
+		public static Queue<Point> GetPathAStar<T>(Dictionary<Point, T> map, Point start, Point goal, int maxLength)
 		{
 			// openSet.Add(start);
 			var closedSet = new HashSet<Point>();
@@ -103,6 +180,10 @@ namespace Map
 		{
 			return 1;
 		}
+		private static int GetDistance(TileMapData start, TileMapData goal)
+		{
+			return (start.Data.Type.Tile == ETile.OBSTACLE || goal.Data.Type.Tile == ETile.OBSTACLE) ? 10000 : 1;
+		}
 
 		private static void AddElementInSortedList(ref List<Point> listPoints, Point newPoint, Dictionary<Point, int> pointsValue, int newPointValue)
 		{
@@ -143,7 +224,7 @@ namespace Map
 			return Mathf.Abs(start.x - goal.x) + Mathf.Abs(start.y - goal.y);
 		}
 
-		public Queue<Point> RecontructPath(Dictionary<Point, Point> cameFrom, Point current)
+		public static Queue<Point> RecontructPath(Dictionary<Point, Point> cameFrom, Point current)
 		{
 			var path = new Queue<Point>();
 			path.Enqueue(current);

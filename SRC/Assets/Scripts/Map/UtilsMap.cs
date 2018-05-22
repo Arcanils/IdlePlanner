@@ -77,6 +77,11 @@ namespace Map
 		{
 			return lhs.x != rhs.x || lhs.y != rhs.y;
 		}
+
+		public static Point operator +(Point lhs, Point rhs)
+		{
+			return new Point(lhs.x + lhs.x, rhs.y + rhs.y);
+		}
 	}
 
 

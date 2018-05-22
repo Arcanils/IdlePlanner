@@ -12,7 +12,14 @@ public interface IEntityModel
 	void Spawn(Point startPosition);
 }
 
-public class EntityModel : IEntityModel
+public interface IVisionModel
+{
+	List<Point> GetPathTo(EResource resource, int range);
+	bool IsBlocked();
+	TileMapData GetCurrentTile();
+}
+
+public class EntityModel : IEntityModel, IVisionModel
 {
 	public enum EStateModel
 	{
@@ -29,6 +36,7 @@ public class EntityModel : IEntityModel
 	public int CapacityStorage = 5;
 	public int CurrentAmountFuel = 50;
 
+	public Point Direction { get; private set; }
 	public Point Position { get; private set; }
 	public Point PrevPosition { get; private set; }
 	public int AmountCollected { get; private set; }
@@ -89,6 +97,24 @@ public class EntityModel : IEntityModel
 		Position = startPosition;
 		PrevPosition = startPosition;
 		SwitchState(EStateModel.SPAWN);
+	}
+
+
+	List<Point> IVisionModel.GetPathTo(EResource resource, int range)
+	{
+		throw new System.NotImplementedException();
+	}
+
+	bool IVisionModel.IsBlocked()
+	{
+		var newPos = Direction + Position;
+
+		return !_visionMap.ContainsKey(newPos) || _visionMap[newPos].Data.Type.Tile == ETile.OBSTACLE;
+	}
+
+	TileMapData IVisionModel.GetCurrentTile()
+	{
+		return _visionMap[Position];
 	}
 
 	private void SwitchState(EStateModel newState)

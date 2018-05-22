@@ -37,12 +37,14 @@ public class EntityController
 				return true;
 			case ECondition.NEXT_TO:
 				return true;
-			case ECondition.HAS_VISION_ON_TARGET:
+			case ECondition.HAS_PATH_TO_TARGET:
 				return true;
 			case ECondition.NO_PATH:
 				return true;
 			case ECondition.TRUE:
 				return true;
+			default:
+				throw new System.Exception("Unexpected Case");
 		}
 
 		return false;
@@ -100,7 +102,7 @@ public class AIBehaviour
 	{
 		var gambits = new List<AIGambitLine>
 		{
-			new AIGambitLine(ECondition.HAS_VISION_ON_TARGET, ETargetCondition.RESOURCE, EActionCondition.COLLECT),
+			new AIGambitLine(ECondition.HAS_PATH_TO_TARGET, ETargetCondition.RESOURCE, EActionCondition.COLLECT),
 			new AIGambitLine(ECondition.NO_PATH, ETargetCondition.NONE, EActionCondition.FIND_NEW_PATH),
 			new AIGambitLine(ECondition.TRUE, ETargetCondition.NONE, EActionCondition.MOVE_FORWARD),
 		};
@@ -122,7 +124,7 @@ public enum ECondition
 {
 	ON_TARGET,
 	NEXT_TO,
-	HAS_VISION_ON_TARGET,
+	HAS_PATH_TO_TARGET,
 	NO_PATH,
 	TRUE,
 }
