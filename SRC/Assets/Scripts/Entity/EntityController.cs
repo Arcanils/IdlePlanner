@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Map;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,11 +7,15 @@ using UnityEngine;
 public class EntityController
 {
 	private IEntityModel _actionModel;
+	private IVisionModel _visionModel;
 	private readonly AIBehaviour _ai;
 
-	public EntityController(IEntityModel actionModel)
+	private List<Point> _currentPath;
+
+	public EntityController(IEntityModel actionModel, IVisionModel visionModel)
 	{
 		_actionModel = actionModel;
+		_visionModel = visionModel;
 		_ai = AIBehaviour.GenerateStaticAI();
 	}
 
@@ -19,7 +24,7 @@ public class EntityController
 		for (int i = 0; i < _ai.Gambits.Count; i++)
 		{
 			var gambit = _ai.Gambits[i];
-			if (EvaluateCondtion(_actionModel, gambit.Condition, gambit.Target))
+			if (EvaluateCondtion(gambit.Condition, gambit.Targets, out _currentPath))
 			{
 				ExecuteAction(_actionModel, gambit.Action);
 				break;
@@ -29,25 +34,30 @@ public class EntityController
 		ExecuteAction(_actionModel, EActionCondition.BACK_TO_BASE);
 	}
 
-	private static bool EvaluateCondtion(IEntityModel model, ECondition condition, ETargetCondition target)
+	private bool EvaluateCondtion(ECondition condition, TypeTile[] targets, out List<Point> pathToReturn)
 	{
+		pathToReturn = null;
 		switch (condition)
 		{
 			case ECondition.ON_TARGET:
-				return true;
+				return IsCorrectTile(targets, _visionModel.GetCurrentTile().Data.Type);
 			case ECondition.NEXT_TO:
-				return true;
+				return GetPathToTargets(targets, out pathToReturn, 1);
 			case ECondition.HAS_PATH_TO_TARGET:
-				return true;
+				return GetPathToTargets(targets, out pathToReturn, 10);
 			case ECondition.NO_PATH:
-				return true;
+				return false;
 			case ECondition.TRUE:
 				return true;
 			default:
 				throw new System.Exception("Unexpected Case");
 		}
+	}
 
-		return false;
+	private bool GetPathToTargets(TypeTile[] targets, out List<Point> pathToReturn, int range)
+	{
+		pathToReturn = _visionModel.GetPathTo(targets, range);
+		return pathToReturn != null;
 	}
 
 	private static void ExecuteAction(IEntityModel model, EActionCondition action)
@@ -73,18 +83,32 @@ public class EntityController
 				break;
 		}
 	}
+
+	private static bool IsCorrectTile(TypeTile[] targets, TypeTile tileToCompare)
+	{
+		if (targets == null)
+			return false;
+
+		for (int i = targets.Length - 1; i >= 0; --i)
+		{
+			if (tileToCompare.Equals(targets[i]))
+				return true;
+		}
+
+		return false;
+	}
 }
 
 public struct AIGambitLine
 {
 	public ECondition Condition;
-	public ETargetCondition Target;
+	public TypeTile[] Targets;
 	public EActionCondition Action;
 
-	public AIGambitLine(ECondition condtion, ETargetCondition target, EActionCondition action)
+	public AIGambitLine(ECondition condtion, TypeTile[] targets, EActionCondition action)
 	{
 		Condition = condtion;
-		Target = target;
+		Targets = targets;
 		Action = action;
 	}
 }
@@ -102,9 +126,9 @@ public class AIBehaviour
 	{
 		var gambits = new List<AIGambitLine>
 		{
-			new AIGambitLine(ECondition.HAS_PATH_TO_TARGET, ETargetCondition.RESOURCE, EActionCondition.COLLECT),
-			new AIGambitLine(ECondition.NO_PATH, ETargetCondition.NONE, EActionCondition.FIND_NEW_PATH),
-			new AIGambitLine(ECondition.TRUE, ETargetCondition.NONE, EActionCondition.MOVE_FORWARD),
+			new AIGambitLine(ECondition.HAS_PATH_TO_TARGET, new TypeTile[]{new TypeTile(ETile.RESOURCE, 1) }, EActionCondition.COLLECT),
+			new AIGambitLine(ECondition.NO_PATH, null, EActionCondition.FIND_NEW_PATH),
+			new AIGambitLine(ECondition.TRUE, null, EActionCondition.MOVE_FORWARD),
 		};
 
 		return new AIBehaviour(gambits);

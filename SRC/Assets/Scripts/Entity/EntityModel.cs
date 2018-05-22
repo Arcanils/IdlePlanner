@@ -14,7 +14,7 @@ public interface IEntityModel
 
 public interface IVisionModel
 {
-	List<Point> GetPathTo(EResource resource, int range);
+	List<Point> GetPathTo(TypeTile[] targets, int range);
 	bool IsBlocked();
 	TileMapData GetCurrentTile();
 }
@@ -100,9 +100,9 @@ public class EntityModel : IEntityModel, IVisionModel
 	}
 
 
-	List<Point> IVisionModel.GetPathTo(EResource resource, int range)
+	List<Point> IVisionModel.GetPathTo(TypeTile[] targets, int range)
 	{
-		throw new System.NotImplementedException();
+		return SearchAlgo.DijkstraPath(_visionMap, Position, targets, range);
 	}
 
 	bool IVisionModel.IsBlocked()

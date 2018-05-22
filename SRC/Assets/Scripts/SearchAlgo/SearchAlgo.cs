@@ -6,7 +6,7 @@ namespace Map
 {
 	public static class SearchAlgo
 	{
-		public static Queue<Point> DijkstraPath(Dictionary<Point, TileMapData> map, Point start, TypeTile[] typesWanted, int maxLength)
+		public static List<Point> DijkstraPath(Dictionary<Point, TileMapData> map, Point start, TypeTile[] typesWanted, int maxLength)
 		{
 			// openSet.Add(start);
 			var closedSet = new HashSet<Point>();
@@ -83,7 +83,7 @@ namespace Map
 			return false;
 		}
 
-		public static Queue<Point> GetPathAStar<T>(Dictionary<Point, T> map, Point start, Point goal, int maxLength)
+		public static List<Point> GetPathAStar<T>(Dictionary<Point, T> map, Point start, Point goal, int maxLength)
 		{
 			// openSet.Add(start);
 			var closedSet = new HashSet<Point>();
@@ -224,14 +224,14 @@ namespace Map
 			return Mathf.Abs(start.x - goal.x) + Mathf.Abs(start.y - goal.y);
 		}
 
-		public static Queue<Point> RecontructPath(Dictionary<Point, Point> cameFrom, Point current)
+		public static List<Point> RecontructPath(Dictionary<Point, Point> cameFrom, Point current)
 		{
-			var path = new Queue<Point>();
-			path.Enqueue(current);
+			var path = new List<Point>();
+			path.Add(current);
 			while (cameFrom.ContainsKey(current))
 			{
 				current = cameFrom[current];
-				path.Enqueue(current);
+				path.Add(current);
 			}
 
 			return path;

@@ -91,6 +91,12 @@ namespace Map
 		public ETile Tile;
 		public int SubTile;
 
+		public TypeTile(ETile tile, int subTile)
+		{
+			Tile = tile;
+			SubTile = subTile;
+		}
+
 		public bool Equals(TypeTile other)
 		{
 			return this.Tile == other.Tile && this.SubTile == other.SubTile;

@@ -28,7 +28,7 @@ public class FactoryRobots : IFactoryRobot
 
 	private EntityController CreateController(EntityModel model)
 	{
-		return new EntityController(model);
+		return new EntityController(model, model);
 	}
 
 	void IFactoryRobot.CreateModelControllerRobot(Point startPoint, out EntityModel model, out EntityController controller)
