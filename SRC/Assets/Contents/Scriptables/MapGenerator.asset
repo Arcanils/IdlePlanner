@@ -62,5 +62,6 @@ MonoBehaviour:
       SubTile: 2
     Text: {fileID: 21300000, guid: c0e913f206b6fc44e9ffd2b4820dbbaa, type: 3}
     Color: {r: 0.41162336, g: 0.6981132, b: 0.6105588, a: 1}
+  indexDefaultTile: 7
   Data:
   - {fileID: 11400000, guid: 08cf44ade5f650048831e0eb4ef9a740, type: 2}

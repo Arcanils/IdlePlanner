@@ -27,7 +27,7 @@ public class EntityController
 			if (EvaluateCondtion(gambit.Condition, gambit.Targets, out _currentPath))
 			{
 				ExecuteAction(_actionModel, gambit.Action);
-				break;
+				return;
 			}
 		}
 
@@ -60,24 +60,30 @@ public class EntityController
 		return pathToReturn != null;
 	}
 
-	private static void ExecuteAction(IEntityModel model, EActionCondition action)
+	private void ExecuteAction(IEntityModel model, EActionCondition action)
 	{
 		switch (action)
 		{
 			case EActionCondition.COLLECT:
+				Debug.Log("COLLECT");
 				model.Collect();
 				break;
 			case EActionCondition.SCAN:
+				Debug.Log("SCAN");
 				model.Scan();
 				break;
 			case EActionCondition.FIND_NEW_PATH:
-				//A* new path
+				model.MoveTo(_currentPath[_currentPath.Count - 1]);
+				Debug.Log("FIND_NEW_PATH");
+
 				break;
 			case EActionCondition.MOVE_FORWARD:
-				// Move forward
+				Debug.Log("MOVE_FORWARD");
+				model.MoveForward();
 				break;
 			case EActionCondition.BACK_TO_BASE:
-				// Finish
+				Debug.Log("BACK_TO_BASE");
+
 				break;
 			default:
 				break;
@@ -126,8 +132,9 @@ public class AIBehaviour
 	{
 		var gambits = new List<AIGambitLine>
 		{
-			new AIGambitLine(ECondition.HAS_PATH_TO_TARGET, new TypeTile[]{new TypeTile(ETile.RESOURCE, 1) }, EActionCondition.COLLECT),
-			new AIGambitLine(ECondition.NO_PATH, null, EActionCondition.FIND_NEW_PATH),
+			new AIGambitLine(ECondition.ON_TARGET, new TypeTile[]{new TypeTile(ETile.RESOURCE, 1) }, EActionCondition.COLLECT),
+			new AIGambitLine(ECondition.HAS_PATH_TO_TARGET, new TypeTile[]{new TypeTile(ETile.RESOURCE, 1) }, EActionCondition.FIND_NEW_PATH),
+			//new AIGambitLine(ECondition.NO_PATH, null, EActionCondition.SCAN),
 			new AIGambitLine(ECondition.TRUE, null, EActionCondition.MOVE_FORWARD),
 		};
 

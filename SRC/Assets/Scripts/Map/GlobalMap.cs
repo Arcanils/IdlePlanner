@@ -18,9 +18,13 @@ namespace Map
 	{
 		private Dictionary<Point, TileMapData> _map;
 		private Dictionary<Point, TileMapData> _vision;
-		public GlobalMap(Dictionary<Point, TileMapData> map)
+		private TileFlyweight _defaultTile;
+		private IDrawMap _drawMap;
+		public GlobalMap(IDrawMap drawMap, Dictionary<Point, TileMapData> map, TileFlyweight defaultTile)
 		{
+			_drawMap = drawMap;
 			_map = map;
+			_defaultTile = defaultTile;
 			_vision = new Dictionary<Point, TileMapData>();
 		}
 
@@ -31,10 +35,17 @@ namespace Map
 
 			var item = _map[position];
 
+			Debug.Log(item.Data.Type.Tile + " " + item.AmountResources);
+
 			if (item.Data.Type.Tile != ETile.RESOURCE || item.AmountResources <= 0)
 				return false;
 
-			--item.AmountResources;
+			if (--item.AmountResources <= 0)
+			{
+				_map[position].Data = _defaultTile;
+				_drawMap.UpdateMap(position, _map[position]);
+				Debug.LogWarning("END OF RESOURCES");
+			}
 			return true;
 		}
 

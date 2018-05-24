@@ -9,9 +9,10 @@ namespace Map
 	public class GenerateMap : ScriptableObject
 	{
 		public TileFlyweight[] ListTiles;
+		public int indexDefaultTile;
 		public DataGenerateMap[] Data;
 
-		public Dictionary<Point, TileMapData> GenerateStatic()
+		public Dictionary<Point, TileMapData> GenerateStatic(out TileFlyweight defaultTile)
 		{
 			var map = new Dictionary<Point, TileMapData>();
 			var data = Data[0];
@@ -62,14 +63,14 @@ namespace Map
 						//Debug.LogWarning(x + " " + y + " " + noiseValue);
 						if (noiseValue > tile.SpawnValue)
 						{
-							map[position] = new TileMapData(fwTile, Mathf.RoundToInt(5 * ((noiseValue - tile.SpawnValue) / lengthLuck)));
+							map[position] = new TileMapData(fwTile, (int)Mathf.Ceil(5 * ((noiseValue - tile.SpawnValue) / lengthLuck)));
 						}
 					}
 				}
 			}
 
 
-
+			defaultTile = ListTiles[indexDefaultTile];
 			return map;
 		}
 

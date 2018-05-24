@@ -48,11 +48,12 @@ public class EntityManager : IEntityManagerAction, IEntityTick
 	private List<EntityMVC> _listEntity;
 	private bool _viewEnable;
 
-	public EntityManager(IFactoryRobot factory, Point startPoint)
+	public EntityManager(IFactoryRobot factory, Point startPoint, bool viewEnable = true)
 	{
 		_factory = factory;
 		_startPoint = startPoint;
 		_listEntity = new List<EntityMVC>(32);
+		_viewEnable = viewEnable;
 	}
 
 	void IEntityManagerAction.AddEntity()

@@ -47,27 +47,7 @@ namespace Map
 			this.x = x;
 			this.y = y;
 		}
-
-		public override bool Equals(object obj)
-		{
-			if (!(obj is Point))
-			{
-				return false;
-			}
-
-			var point = (Point)obj;
-			return x == point.x &&
-				   y == point.y;
-		}
-
-		public override int GetHashCode()
-		{
-			var hashCode = 1502939027;
-			hashCode = hashCode * -1521134295 + base.GetHashCode();
-			hashCode = hashCode * -1521134295 + x.GetHashCode();
-			hashCode = hashCode * -1521134295 + y.GetHashCode();
-			return hashCode;
-		}
+		
 
 		public static bool operator ==(Point lhs, Point rhs)
 		{
@@ -80,7 +60,26 @@ namespace Map
 
 		public static Point operator +(Point lhs, Point rhs)
 		{
-			return new Point(lhs.x + lhs.x, rhs.y + rhs.y);
+			return new Point(lhs.x + rhs.x, lhs.y + rhs.y);
+		}
+		public static Point operator -(Point lhs, Point rhs)
+		{
+			return new Point(lhs.x - rhs.x, lhs.y - rhs.y);
+		}
+
+		public override string ToString()
+		{
+			return "[" + x + ":" + y + "]";
+		}
+
+		public override bool Equals(object obj)
+		{
+			return base.Equals(obj);
+		}
+
+		public override int GetHashCode()
+		{
+			return base.GetHashCode();
 		}
 	}
 
