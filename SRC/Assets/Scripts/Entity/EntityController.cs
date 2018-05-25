@@ -73,7 +73,7 @@ public class EntityController
 				model.Scan();
 				break;
 			case EActionCondition.FIND_NEW_PATH:
-				model.MoveTo(_currentPath[_currentPath.Count - 1]);
+				model.MoveTo(_currentPath[0]);
 				Debug.Log("FIND_NEW_PATH");
 
 				break;

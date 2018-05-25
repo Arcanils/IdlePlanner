@@ -34,8 +34,8 @@ public class EntityModel : IEntityModel, IVisionModel
 
 	public int RangeVision = 1;
 	public int RangeScanVision = 3;
-	public int CapacityStorage = 500;
-	public int CurrentAmountFuel = 50;
+	public int CapacityStorage = 50000;
+	public int CurrentAmountFuel = 50000;
 
 	public Point Direction { get; private set; }
 	public Point Position { get; private set; }
@@ -75,11 +75,15 @@ public class EntityModel : IEntityModel, IVisionModel
 	{
 		if (CurrentAmountFuel <= 0)
 			return;
+
+		if (_visionMap.ContainsKey(newPosition) && _visionMap[newPosition].Data.Type.Tile == ETile.OBSTACLE)
+			return;
+
 		PrevPosition = Position;
 		Position = newPosition;
 		Direction = Position - PrevPosition;
 		--CurrentAmountFuel;
-		_iMapData.UpdateMap(ref _visionMap, GetPositionToUpdate(RangeVision, Position));
+		_iMapData.UpdateMap(ref _visionMap, Position, RangeVision);
 
 		Debug.Log("MOVE to" + Position);
 		SwitchState(EStateModel.MOVE);
@@ -91,7 +95,7 @@ public class EntityModel : IEntityModel, IVisionModel
 	}
 	void IEntityModel.Scan()
 	{
-		_iMapData.UpdateMap(ref _visionMap, GetPositionToUpdate(RangeScanVision, Position));
+		_iMapData.UpdateMap(ref _visionMap, Position, RangeScanVision);
 
 		SwitchState(EStateModel.SCAN);
 	}
@@ -106,7 +110,7 @@ public class EntityModel : IEntityModel, IVisionModel
 		Position = startPosition;
 		PrevPosition = startPosition;
 		Direction = new Point(0, 1);
-		_iMapData.UpdateMap(ref _visionMap, GetPositionToUpdate(RangeVision, Position));
+		_iMapData.UpdateMap(ref _visionMap, Position, RangeVision);
 		SwitchState(EStateModel.SPAWN);
 	}
 
@@ -140,19 +144,5 @@ public class EntityModel : IEntityModel, IVisionModel
 		State = newState;
 	}
 
-	private static Point[] GetPositionToUpdate(int rangeScan, Point position)
-	{
-		var listPosToUpdate = new List<Point>();
-		for (int i = -rangeScan; i <= rangeScan; i++)
-		{
-			var jLength = (rangeScan - Mathf.Abs(i)) + 1;
-			var jLength2 = jLength / 2;
-			for (int j = -jLength2; j <= jLength2; j++)
-			{
-				listPosToUpdate.Add(new Point(i + position.x, j + position.y));
-			}
-		}
-		return listPosToUpdate.ToArray();
-	}
 
 }

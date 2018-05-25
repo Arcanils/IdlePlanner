@@ -206,17 +206,17 @@ namespace Map
 			var sideNode = position;
 
 			sideNode.Set(position.x + 1, position.y);
-			if (map.ContainsKey(position))
-				listNodeToAppend.Add(position);
+			if (map.ContainsKey(sideNode))
+				listNodeToAppend.Add(sideNode);
 			sideNode.Set(position.x - 1, position.y);
-			if (map.ContainsKey(position))
-				listNodeToAppend.Add(position);
+			if (map.ContainsKey(sideNode))
+				listNodeToAppend.Add(sideNode);
 			sideNode.Set(position.x, position.y + 1);
-			if (map.ContainsKey(position))
-				listNodeToAppend.Add(position);
+			if (map.ContainsKey(sideNode))
+				listNodeToAppend.Add(sideNode);
 			sideNode.Set(position.x, position.y - 1);
-			if (map.ContainsKey(position))
-				listNodeToAppend.Add(position);
+			if (map.ContainsKey(sideNode))
+				listNodeToAppend.Add(sideNode);
 		}
 
 		private static int HeuristicCostEstimate(Point start, Point goal)
@@ -233,6 +233,9 @@ namespace Map
 				current = cameFrom[current];
 				path.Add(current);
 			}
+
+			path.RemoveAt(path.Count - 1);
+			path.Reverse();
 
 			return path;
 		}

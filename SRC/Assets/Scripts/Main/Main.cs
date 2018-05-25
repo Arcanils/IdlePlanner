@@ -26,9 +26,6 @@ public class Main : MonoBehaviour, IDrawMap
 	{
 		var startPoint = new Point(2, 2);
 
-		var entityManager = new EntityManager(_factory, startPoint);
-		_entityManagerAction = entityManager;
-		_entityManagerTick = entityManager;
 		TileFlyweight defaultTile;
 		var mapData = MapGenerator.GenerateStatic(out defaultTile);
 		_map = new GlobalMap(this, mapData, defaultTile);
@@ -39,14 +36,20 @@ public class Main : MonoBehaviour, IDrawMap
 			_uiMap[item.Key] = CreateTile(item.Key, item.Value.Data);
 		}
 
+		var entityManager = new EntityManager(_factory, startPoint);
+		_entityManagerAction = entityManager;
+		_entityManagerTick = entityManager;
+
 		StartCoroutine(TestLogicEnum());
 	}
 
 	public IEnumerator TestLogicEnum()
 	{
-		_entityManagerAction.AddEntity();
+		int count = 0;
 		while (true)
 		{
+			if (++count % 5 == 0)
+				_entityManagerAction.AddEntity();
 			_entityManagerTick.Tick();
 			yield return new WaitForSeconds(0.5f);
 		}

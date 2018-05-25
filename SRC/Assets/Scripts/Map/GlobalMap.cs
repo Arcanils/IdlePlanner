@@ -10,7 +10,7 @@ namespace Map
 	public interface IActionOnMap
 	{
 		Dictionary<Point, TileMapData> GetMap();
-		void UpdateMap(ref Dictionary<Point, TileMapData> visionMap, params Point[] tilesToUpdate);
+		void UpdateMap(ref Dictionary<Point, TileMapData> visionMap, Point position, int range);
 		bool Collect(Point position);
 	}
 
@@ -54,16 +54,47 @@ namespace Map
 			return _vision;
 		}
 
-		void IActionOnMap.UpdateMap(ref Dictionary<Point, TileMapData> visionMap, params Point[] tilesToUpdate)
+		void IActionOnMap.UpdateMap(ref Dictionary<Point, TileMapData> visionMap, Point position, int range)
 		{
+			var tilesToUpdate = GetPositionToUpdate(range, position);
 			for (int i = tilesToUpdate.Length - 1; i >= 0; --i)
 			{
-				var position = tilesToUpdate[i];
-				if (!_map.ContainsKey(position))
+				var tile = tilesToUpdate[i];
+				if (!_map.ContainsKey(tile))
 					continue;
 
-				visionMap[position] = _map[position];
+				visionMap[tile] = _map[tile];
 			}
+			++range;
+			for (int i = -range; i <= range; i++)
+			{
+				var jLength = ((range - Mathf.Abs(i)) + 1) / 2;
+				var tile1 = new Point(i + position.x, -jLength + position.y);
+				var tile2 = new Point(i + position.x, +jLength + position.y);
+				if (_map.ContainsKey(tile1) && !(visionMap.ContainsKey(tile1)))
+				{
+					//SetTileUnknown
+				}
+				if (_map.ContainsKey(tile2) && !(visionMap.ContainsKey(tile2)))
+				{
+					//SetTileUnknown
+				}
+			}
+		}
+
+		private static Point[] GetPositionToUpdate(int rangeScan, Point position)
+		{
+			var listPosToUpdate = new List<Point>();
+			for (int i = -rangeScan; i <= rangeScan; i++)
+			{
+				var jLength = (rangeScan - Mathf.Abs(i)) + 1;
+				var jLength2 = jLength / 2;
+				for (int j = -jLength2; j <= jLength2; j++)
+				{
+					listPosToUpdate.Add(new Point(i + position.x, j + position.y));
+				}
+			}
+			return listPosToUpdate.ToArray();
 		}
 	}
 }
